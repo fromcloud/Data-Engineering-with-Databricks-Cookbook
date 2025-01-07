@@ -1,4 +1,4 @@
-ARG java_image_tag=17-jre
+ARG java_image_tag=17-jre 
 FROM eclipse-temurin:${java_image_tag}
 
 # -- Layer: Image Metadata
@@ -16,22 +16,24 @@ LABEL org.label-schema.schema-version="1.0"
 
 ARG shared_workspace=/opt/workspace
 
+RUN apt update
+RUN apt install python-is-python3 -y
+RUN apt install pip -y
+RUN python -m pip config set global.break-system-packages true
+
 RUN mkdir -p ${shared_workspace}/data && \
     mkdir -p /usr/share/man/man1  && \
-    apt-get update -y && \
-    apt-get install -y --no-install-recommends curl python3 r-base netcat && \
-    ln -s /usr/bin/python3 /usr/bin/python && \
+    apt-get install -y --no-install-recommends curl r-base netcat-traditional && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends build-essential manpages-dev python3-pip python3-dev && \
-    pip3 install  --no-cache-dir --upgrade pip && \
+    apt-get install -y --no-install-recommends build-essential manpages-dev python3-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # We are explicitly pinning the versions of various libraries which this Docker image runs on.
-RUN pip3 install --quiet --no-cache-dir \
+RUN pip3 install --no-cache-dir \
     delta-spark==${delta_spark_version} \
     deltalake==${deltalake_version} \
     pandas==${pandas_version}
@@ -44,3 +46,4 @@ ENV SHARED_WORKSPACE=${shared_workspace}
 
 VOLUME ${shared_workspace}
 CMD ["bash"]
+
