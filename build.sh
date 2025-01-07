@@ -127,3 +127,6 @@ cleanContainers;
 cleanImages;
 cleanVolume;
 buildImages;
+
+
+echo
